@@ -242,6 +242,9 @@ export function AvatarDropdown({
             <Segment active={locale === 'en'} onClick={() => setLocale('en')} title="English">
               EN
             </Segment>
+            <Segment active={locale === 'pl'} onClick={() => setLocale('pl')} title="Polski">
+              PL
+            </Segment>
           </PreferenceRow>
 
           {/* Actions:logout */}

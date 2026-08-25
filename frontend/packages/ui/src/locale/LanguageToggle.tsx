@@ -4,11 +4,12 @@ import { Button } from '../ui/button'
 import { useLocale } from './LocaleProvider'
 import { type Locale } from './locale-script'
 
-const localeItems: Locale[] = ['zh-CN', 'zh-TW', 'en']
+const localeItems: Locale[] = ['zh-CN', 'zh-TW', 'en', 'pl']
 const localeLabel: Record<Locale, string> = {
   'zh-CN': '简体',
   'zh-TW': '繁體',
-  en: 'EN'
+  en: 'EN',
+  pl: 'PL'
 }
 
 export function LanguageToggle() {

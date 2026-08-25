@@ -10,6 +10,7 @@ import { formatBalanceCompact } from '@beecount/web-features'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import en from './i18n/en'
+import pl from './i18n/pl'
 import zhCN from './i18n/zh-CN'
 import zhTW from './i18n/zh-TW'
 import { localizeError } from './i18n/errors'
@@ -24,6 +25,8 @@ describe('i18n locale runtime', () => {
     expect(normalizeLocale('zh-HK')).toBe('zh-TW')
     expect(normalizeLocale('zh-CN')).toBe('zh-CN')
     expect(normalizeLocale('en-US')).toBe('en')
+    expect(normalizeLocale('pl-PL')).toBe('pl')
+    expect(normalizeLocale('pl')).toBe('pl')
   })
 
   it('detects browser locale and persists to localStorage', () => {
@@ -128,6 +131,7 @@ describe('compact amount locale unit', () => {
  */
 describe('i18n parity', () => {
   const enKeys = new Set(Object.keys(en))
+  const plKeys = new Set(Object.keys(pl))
   const zhCNKeys = new Set(Object.keys(zhCN))
   const zhTWKeys = new Set(Object.keys(zhTW))
 
@@ -135,6 +139,7 @@ describe('i18n parity', () => {
     [...a].filter((k) => !b.has(k)).sort()
 
   const cases = [
+    { name: 'pl', keys: plKeys },
     { name: 'zh-CN', keys: zhCNKeys },
     { name: 'zh-TW', keys: zhTWKeys },
   ] as const
@@ -162,7 +167,7 @@ describe('i18n parity', () => {
   }
 
   it('每个 locale 的所有值都是非空字符串', () => {
-    for (const [name, dict] of Object.entries({ en, 'zh-CN': zhCN, 'zh-TW': zhTW })) {
+    for (const [name, dict] of Object.entries({ en, pl, 'zh-CN': zhCN, 'zh-TW': zhTW })) {
       const blanks = Object.entries(dict).filter(
         ([, value]) => typeof value !== 'string' || value.trim() === '',
       )
