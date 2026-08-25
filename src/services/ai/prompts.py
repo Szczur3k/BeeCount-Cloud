@@ -17,6 +17,18 @@ from datetime import datetime
 from .docs_index import RetrievedChunk
 
 
+_SYSTEM_PL = """\
+Jesteś asystentem księgowości domowej. Odpowiadaj WYŁĄCZNIE na podstawie
+poniższych «Dokumentów».
+
+Zasady:
+1. Odpowiadaj po polsku.
+2. Jeśli w dokumentach czegoś nie ma — napisz, że nie ma tego w dokumentacji. Nie zmyślaj.
+3. Krótko: kroki numerowane albo 1–2 zdania.
+4. Nie dopisuj listy źródeł (system doda je sam).
+5. Pytania niezwiązane z księgowością / tą aplikacją — odmów krótko.
+"""
+
 _SYSTEM_ZH = """\
 你是 BeeCount(蜜蜂记账)的助手,只基于下面提供的「相关文档」回答用户的问题。
 
@@ -51,10 +63,16 @@ def build_ask_messages(
     *,
     query: str,
     chunks: list[RetrievedChunk],
-    lang: str = "zh",
+    lang: str = "pl",
 ) -> list[dict[str, str]]:
     """拼出 OpenAI-compatible /chat/completions 的 messages 数组。"""
-    system = _SYSTEM_ZH if lang.startswith("zh") else _SYSTEM_EN
+    lang_key = (lang or "pl").lower()
+    if lang_key.startswith("zh"):
+        system = _SYSTEM_ZH
+    elif lang_key.startswith("en"):
+        system = _SYSTEM_EN
+    else:
+        system = _SYSTEM_PL
     parts: list[str] = []
     for i, c in enumerate(chunks, 1):
         # 给每段加上 doc 路径作为 anchor,LLM 看上下文更好
@@ -63,16 +81,24 @@ def build_ask_messages(
             header += f" — {c.chunk.section}"
         parts.append(f"{header}\n{c.chunk.content.strip()}")
     docs_block = "\n\n".join(parts) if parts else (
-        "(没找到相关文档)" if lang.startswith("zh") else "(no relevant docs found)"
+        "(没找到相关文档)"
+        if lang_key.startswith("zh")
+        else "(no relevant docs found)"
+        if lang_key.startswith("en")
+        else "(brak fragmentów dokumentacji)"
     )
 
-    if lang.startswith("zh"):
+    if lang_key.startswith("zh"):
         user_content = (
             f"## 相关文档\n\n{docs_block}\n\n## 用户问题\n\n{query}"
         )
-    else:
+    elif lang_key.startswith("en"):
         user_content = (
             f"## Relevant Docs\n\n{docs_block}\n\n## User Question\n\n{query}"
+        )
+    else:
+        user_content = (
+            f"## Dokumenty\n\n{docs_block}\n\n## Pytanie\n\n{query}"
         )
 
     return [
@@ -240,6 +266,55 @@ Rules:
 Output JSON only, no prefix/suffix text.
 """
 
+_PARSE_TX_IMAGE_PL = """\
+Jesteś asystentem księgowości. Z zrzutu paragonu / powiadomienia banku wyciągnij każdą transakcję.
+
+Czas teraz: {NOW}
+Dostępne kategorie: {CATEGORIES}
+Dostępne konta: {ACCOUNTS}
+{CURRENCY_HINT}
+
+{SCHEMA}
+
+Zasady:
+1. Jeśli to nie jest paragon / wyciąg — zwróć `{{"tx_drafts": []}}`.
+2. Przy liście wielu pozycji wyciągnij każdą czytelną.
+3. Nie zmyślaj kwot ani dat. Niepewne pole: "" lub null; bez kwoty — pomiń pozycję.
+
+Tylko JSON, bez komentarza.
+"""
+
+_PARSE_TX_TEXT_PL = """\
+Jesteś asystentem księgowości. Z tekstu (SMS, wyciąg, lista) wyciągnij transakcje.
+
+Czas teraz: {NOW}
+Dostępne kategorie: {CATEGORIES}
+Dostępne konta: {ACCOUNTS}
+{CURRENCY_HINT}
+
+Tekst:
+{TEXT}
+
+{SCHEMA}
+
+Zasady:
+1. Brak daty → wywnioskuj albo użyj "{NOW}".
+2. Brak kategorii → zgadnij z opisu albo "".
+3. Pogawędka bez kwot → `{{"tx_drafts": []}}`.
+4. Nie zmyślaj kwot.
+
+Tylko JSON, bez komentarza.
+"""
+
+
+def _locale_kind(locale: str | None) -> str:
+    key = (locale or "pl").lower()
+    if key.startswith("zh"):
+        return "zh"
+    if key.startswith("en"):
+        return "en"
+    return "pl"
+
 
 def _format_categories_hint(categories: list[str]) -> str:
     """把类目列表格式化成 LLM 友好的字符串。空列表返回 "(无,请用户在前端选)"。"""
@@ -292,7 +367,7 @@ def build_parse_tx_image_messages(
     accounts: list[tuple[str, str | None]],
     ledger_currency: str = "CNY",
     now: datetime,
-    locale: str = "zh",
+    locale: str = "pl",
     image_data_url: str,
     custom_prompt_template: str | None = None,
 ) -> list[dict[str, object]]:
@@ -303,8 +378,16 @@ def build_parse_tx_image_messages(
     custom_prompt_template: 用户自定义 prompt(从 user.ai_config_json 来),为 None 则用 default
         —— 自定义模板不含 `{CURRENCY_HINT}` 时 `.format()` 直接忽略该 kwarg,老模板零影响
     """
-    is_zh = (locale or "zh").lower().startswith("zh")
-    template = custom_prompt_template or (_PARSE_TX_IMAGE_ZH if is_zh else _PARSE_TX_IMAGE_EN)
+    kind = _locale_kind(locale)
+    is_zh = kind == "zh"
+    if custom_prompt_template:
+        template = custom_prompt_template
+    elif kind == "zh":
+        template = _PARSE_TX_IMAGE_ZH
+    elif kind == "en":
+        template = _PARSE_TX_IMAGE_EN
+    else:
+        template = _PARSE_TX_IMAGE_PL
     schema = _TX_DRAFTS_SCHEMA_ZH if is_zh else _TX_DRAFTS_SCHEMA_EN
     prompt = template.format(
         NOW=now.isoformat(timespec="seconds"),
@@ -331,12 +414,20 @@ def build_parse_tx_text_messages(
     accounts: list[tuple[str, str | None]],
     ledger_currency: str = "CNY",
     now: datetime,
-    locale: str = "zh",
+    locale: str = "pl",
     custom_prompt_template: str | None = None,
 ) -> list[dict[str, object]]:
     """B3 文字记账 — 拼 OpenAI chat API messages。参数语义同 [build_parse_tx_image_messages]。"""
-    is_zh = (locale or "zh").lower().startswith("zh")
-    template = custom_prompt_template or (_PARSE_TX_TEXT_ZH if is_zh else _PARSE_TX_TEXT_EN)
+    kind = _locale_kind(locale)
+    is_zh = kind == "zh"
+    if custom_prompt_template:
+        template = custom_prompt_template
+    elif kind == "zh":
+        template = _PARSE_TX_TEXT_ZH
+    elif kind == "en":
+        template = _PARSE_TX_TEXT_EN
+    else:
+        template = _PARSE_TX_TEXT_PL
     schema = _TX_DRAFTS_SCHEMA_ZH if is_zh else _TX_DRAFTS_SCHEMA_EN
     prompt = template.format(
         NOW=now.isoformat(timespec="seconds"),

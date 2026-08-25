@@ -16,7 +16,7 @@ export type AskEvent =
 
 export type AskRequest = {
   query: string
-  /** 'zh' | 'zh-CN' | 'zh-TW' | 'en' */
+  /** 'zh' | 'zh-CN' | 'zh-TW' | 'en' | 'pl' */
   locale: string
 }
 
