@@ -43,7 +43,7 @@ _MAX_TEXT_CHARS = 5000
 class ParseTxTextRequest(BaseModel):
     text: str = Field(min_length=1, max_length=_MAX_TEXT_CHARS)
     ledger_id: str | None = None
-    locale: str = Field(default="zh", pattern=r"^(zh|zh-CN|zh-TW|en)$")
+    locale: str = Field(default="zh", pattern=r"^(zh|zh-CN|zh-TW|en|pl|pl-PL|pl-pl)$")
 
 
 @router.post("/parse-tx-text")
