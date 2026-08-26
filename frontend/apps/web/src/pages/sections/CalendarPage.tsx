@@ -36,9 +36,6 @@ type DayBucket = {
   txCount: number
 }
 
-const ZH_WEEK = ['日', '一', '二', '三', '四', '五', '六']
-const EN_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
 function todayKey(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -137,6 +134,7 @@ function aggregateByDay(series: WorkspaceAnalyticsSeriesItem[]): Map<string, Day
 
 export function CalendarPage() {
   const t = useT()
+  const { locale } = useLocale()
   const { token } = useAuth()
   const { activeLedgerId, currency } = useLedgers()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -151,16 +149,12 @@ export function CalendarPage() {
     dateFromUrl && /^\d{4}-\d{2}-\d{2}$/.test(dateFromUrl) ? dateFromUrl : todayKey(),
   )
 
-  // 周起始:locale 推断,中文一,其他日。可以未来通过设置切换。
-  const weekStartsOn: 0 | 1 = useMemo(() => {
-    const lang = (typeof navigator !== 'undefined' ? navigator.language : 'zh').toLowerCase()
-    return lang.startsWith('zh') ? 1 : 0
-  }, [])
-  const weekHeaders = weekStartsOn === 1
-    ? [...ZH_WEEK.slice(1), ZH_WEEK[0]]
-    : weekStartsOn === 0 && (typeof navigator !== 'undefined' ? navigator.language : 'zh').toLowerCase().startsWith('zh')
-      ? ZH_WEEK
-      : EN_WEEK
+  // Week start: Monday for pl / zh, Sunday for en (US-style).
+  const weekStartsOn: 0 | 1 = locale === 'en' ? 0 : 1
+  const weekHeaders = useMemo(() => {
+    const days = [0, 1, 2, 3, 4, 5, 6].map((i) => t(`calendar.dow.${i}`))
+    return weekStartsOn === 1 ? [...days.slice(1), days[0]] : days
+  }, [t, weekStartsOn])
 
   // ====== URL 同步:focusedMonth / selectedDate 改变写回 URL ======
   useEffect(() => {

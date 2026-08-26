@@ -59,6 +59,7 @@ export const TKEY = {
   page8Largest: 'annualReport.page8.largest',
   page8First: 'annualReport.page8.first',
   page8MostExpensiveDay: 'annualReport.page8.mostExpensiveDay',
+  page8TxCount: 'annualReport.page8.txCount',
 
   // page 9 — habits
   page9Title: 'annualReport.page9.title',

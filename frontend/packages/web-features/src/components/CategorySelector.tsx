@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { WorkspaceCategory } from '@beecount/api-client'
 
+import { useT } from '@beecount/ui'
+
 import { CategoryIcon } from './CategoryIcon'
 
 type CategorySelectorKind = 'expense' | 'income'
@@ -53,6 +55,7 @@ export function CategorySelector({
   columns = 4,
   className,
 }: CategorySelectorProps) {
+  const t = useT()
   // 内部展开状态 —— 只有点击的父级允许同时展开 1 个,跟 mobile 一致。
   const [expandedParentId, setExpandedParentId] = useState<string | null>(null)
 
@@ -110,7 +113,7 @@ export function CategorySelector({
   if (topLevels.length === 0) {
     return (
       <div className={`py-8 text-center text-sm text-muted-foreground ${className || ''}`.trim()}>
-        {emptyText ?? '暂无分类'}
+        {emptyText ?? t('categories.empty.byType')}
       </div>
     )
   }

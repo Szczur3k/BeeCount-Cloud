@@ -21,12 +21,12 @@ import type {
 
 import { ConfirmDialog } from '../components/ConfirmDialog'
 
-const CRON_PRESETS: Array<{ label: string; value: string }> = [
-  { label: '每天 04:00', value: '0 4 * * *' },
-  { label: '每天 02:00', value: '0 2 * * *' },
-  { label: '每 6 小时', value: '0 */6 * * *' },
-  { label: '每周日 04:00', value: '0 4 * * 0' },
-  { label: '每月 1 号 04:00', value: '0 4 1 * *' },
+const CRON_PRESETS: Array<{ labelKey: string; value: string }> = [
+  { labelKey: 'backup.schedule.preset.daily4', value: '0 4 * * *' },
+  { labelKey: 'backup.schedule.preset.daily2', value: '0 2 * * *' },
+  { labelKey: 'backup.schedule.preset.every6h', value: '0 */6 * * *' },
+  { labelKey: 'backup.schedule.preset.sunday4', value: '0 4 * * 0' },
+  { labelKey: 'backup.schedule.preset.monthly1', value: '0 4 1 * *' },
 ]
 
 type Props = {
@@ -328,7 +328,7 @@ function ScheduleEditForm({
                     : 'border-border/60 hover:bg-accent/40'
                 }`}
               >
-                {p.label}
+                {t(p.labelKey)}
               </button>
             ))}
           </div>

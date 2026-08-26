@@ -27,10 +27,11 @@ export type AggregateInput = {
   prevYearTxs: TransactionLite[]
   year: number
   ledger: { id: string; name: string; currency: string }
+  uncategorizedName?: string
 }
 
 export function aggregate(input: AggregateInput): AnnualReportData {
-  const { thisYearTxs, prevYearTxs, year, ledger } = input
+  const { thisYearTxs, prevYearTxs, year, ledger, uncategorizedName = 'Uncategorized' } = input
 
   // 排除 transfer(转账不算收入也不算支出,只是账户间挪)
   const txs = thisYearTxs.filter((t) => t.txType !== 'transfer')
@@ -96,8 +97,8 @@ export function aggregate(input: AggregateInput): AnnualReportData {
       : 1
 
   // ===== 分类 =====
-  const topExpenseCategories = computeTopCategories(txs, 'expense', 5)
-  const topIncomeCategories = computeTopCategories(txs, 'income', 5)
+  const topExpenseCategories = computeTopCategories(txs, 'expense', 5, uncategorizedName)
+  const topIncomeCategories = computeTopCategories(txs, 'income', 5, uncategorizedName)
 
   // ===== 时段分布(只统计支出)=====
   const hourBuckets: HourBucket[] = [
@@ -259,13 +260,14 @@ function pctChange(prev: number, curr: number): number {
 function computeTopCategories(
   txs: TransactionLite[],
   kind: 'expense' | 'income',
-  limit: number
+  limit: number,
+  uncategorizedName: string,
 ): CategoryStat[] {
   const filtered = txs.filter((t) => t.txType === kind)
   const total = sumBy(filtered, (t) => t.amount)
   const map = new Map<string, { total: number; count: number }>()
   for (const t of filtered) {
-    const name = t.categoryName ?? '未分类'
+    const name = t.categoryName ?? uncategorizedName
     const cur = map.get(name) ?? { total: 0, count: 0 }
     cur.total += t.amount
     cur.count++

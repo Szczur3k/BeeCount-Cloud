@@ -18,6 +18,7 @@ import {
   CURRENCY_REGION_GROUPS,
   countryCodeForCurrency,
   currencyDisplayName,
+  suggestedCurrencyCodes,
 } from '../lib/currencies'
 
 type FlagComp = React.FC<{ className?: string; title?: string }>
@@ -96,15 +97,22 @@ export function CurrencySelector({
   // 把分组结构按搜索词过滤一遍,空 region 不渲染。
   const filteredGroups = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return CURRENCY_REGION_GROUPS.map((group) => {
-      const codes = group.codes.filter((code) => {
-        if (!q) return true
-        const name = resolveName(code).toLowerCase()
-        return code.toLowerCase().includes(q) || name.includes(q)
+    const suggested = {
+      region: 'suggested',
+      codes: suggestedCurrencyCodes(locale),
+    }
+    const groups = [suggested, ...CURRENCY_REGION_GROUPS]
+    return groups
+      .map((group) => {
+        const codes = group.codes.filter((code) => {
+          if (!q) return true
+          const name = resolveName(code).toLowerCase()
+          return code.toLowerCase().includes(q) || name.includes(q)
+        })
+        return { ...group, codes }
       })
-      return { ...group, codes }
-    }).filter((group) => group.codes.length > 0)
-  }, [query, resolveName])
+      .filter((group) => group.codes.length > 0)
+  }, [query, resolveName, locale])
 
   return (
     <Dialog

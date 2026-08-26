@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import en from '../i18n/en'
+import pl from '../i18n/pl'
 import zhCN from '../i18n/zh-CN'
 import zhTW from '../i18n/zh-TW'
 import {
@@ -12,7 +13,7 @@ import {
   headerSkinLabelKey,
 } from './header-skins'
 
-const LOCALES = { en, 'zh-CN': zhCN, 'zh-TW': zhTW } as const
+const LOCALES = { en, pl, 'zh-CN': zhCN, 'zh-TW': zhTW } as const
 
 describe('header skin catalog', () => {
   it('每款皮肤在三种语言里都有文案', () => {

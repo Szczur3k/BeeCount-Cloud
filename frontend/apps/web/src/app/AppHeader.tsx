@@ -144,7 +144,7 @@ export function AppHeader({ onOpenLogs, onOpenAbout }: Props) {
                         {ledger.is_shared ? (
                           <span
                             className="inline-flex items-center gap-0.5 text-[10px] text-primary"
-                            title={`共享账本 · ${ledger.member_count || 1} 人`}
+                            title={t('sharedLedger.badge', { count: ledger.member_count || 1 })}
                           >
                             🤝
                             <span className="font-mono">{ledger.member_count || 1}</span>
@@ -327,7 +327,7 @@ export function AppHeader({ onOpenLogs, onOpenAbout }: Props) {
                       {ledger.is_shared ? (
                         <span
                           className="inline-flex items-center gap-0.5 text-[10px] text-primary"
-                          title={`共享 · ${ledger.member_count || 1} 人`}
+                          title={t('sharedLedger.badgeShort', { count: ledger.member_count || 1 })}
                         >
                           🤝
                           <span className="font-mono">{ledger.member_count || 1}</span>

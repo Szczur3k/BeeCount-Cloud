@@ -1,9 +1,9 @@
 {
   "id": "/?source=pwa",
-  "name": "蜜蜂记账",
-  "short_name": "蜜蜂记账",
-  "description": "自部署的个人记账云 · 移动端 / 网页端实时同步",
-  "lang": "zh-CN",
+  "name": "BeeCount",
+  "short_name": "BeeCount",
+  "description": "Self-hosted personal accounting cloud · live sync",
+  "lang": "pl",
   "dir": "ltr",
   "start_url": "/?source=pwa",
   "scope": "/",

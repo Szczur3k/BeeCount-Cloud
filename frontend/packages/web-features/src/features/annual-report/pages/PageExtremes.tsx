@@ -72,7 +72,7 @@ export function PageExtremes({ data }: { data: AnnualReportData }) {
       labelKey: TKEY.page8MostExpensiveDay,
       date: formatDate(data.mostExpensiveDay.date),
       primary: `${sym}${Math.round(data.mostExpensiveDay.total).toLocaleString()}`,
-      secondary: `${data.mostExpensiveDay.count} 笔`,
+      secondary: t(TKEY.page8TxCount, { count: data.mostExpensiveDay.count }),
       accent: '#A78BFA',
     })
   }

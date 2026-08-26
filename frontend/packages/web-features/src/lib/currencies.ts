@@ -26,6 +26,20 @@ export const CURRENCY_CODES: readonly string[] = CURRENCY_GROUPS.flatMap((g) => 
 
 export const CURRENCY_REGION_GROUPS = CURRENCY_GROUPS
 
+/** Waluty na górze pickera: locale systemu (PL → PLN, …) + EUR/USD. */
+export function suggestedCurrencyCodes(locale: string): string[] {
+  const l = (locale || '').toLowerCase()
+  let first = 'PLN'
+  if (l.startsWith('pl')) first = 'PLN'
+  else if (l.startsWith('zh')) first = 'CNY'
+  else if (l.startsWith('ja')) first = 'JPY'
+  else if (l.startsWith('ko')) first = 'KRW'
+  else if (l.startsWith('en') && (l.includes('-us') || l.endsWith('us'))) first = 'USD'
+  else if (l.startsWith('de') || l.startsWith('fr') || l.startsWith('es') || l.startsWith('it')) first = 'EUR'
+  const rest = ['PLN', 'EUR', 'USD', 'GBP', 'CHF'].filter((c) => c !== first)
+  return [first, ...rest]
+}
+
 /**
  * 用 [Intl.DisplayNames] 按 locale 本地化任意 ISO 货币名(en→"US Dollar",
  * zh-CN→"美元")。环境不支持 / 未知 code 时回退 code 本身。

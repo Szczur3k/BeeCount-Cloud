@@ -64,115 +64,123 @@ type FieldSpec = {
   showWhen?: { key: string; equals: string | string[] }
 }
 
+type Translate = (key: string) => string
+
 // rclone s3 backend 支持的 provider 列表 — 不是自由文本,具体值要求 rclone
 // 内部能识别(参考 rclone source: backend/s3/s3.go 的 providers map)。
-const S3_PROVIDERS: Array<{ value: string; label: string }> = [
-  { value: 'AWS', label: 'AWS' },
-  { value: 'Cloudflare', label: 'Cloudflare R2' },
-  { value: 'Alibaba', label: '阿里云 OSS' },
-  { value: 'TencentCOS', label: '腾讯云 COS' },
-  { value: 'Backblaze', label: 'Backblaze B2 (S3 API)' },
-  { value: 'Wasabi', label: 'Wasabi' },
-  { value: 'DigitalOcean', label: 'DigitalOcean Spaces' },
-  { value: 'Minio', label: 'MinIO 自建' },
-  { value: 'IBMCOS', label: 'IBM COS' },
-  { value: 'Other', label: '其它(自定义 endpoint)' },
-]
-
-const BACKEND_FIELDS: Record<string, FieldSpec[]> = {
-  s3: [
-    {
-      key: 'provider',
-      label: 'Provider',
-      type: 'select',
-      options: S3_PROVIDERS,
-      hint: 'R2 选 Cloudflare;阿里云 OSS 选 Alibaba;自建 MinIO 选 Minio;不在列表里选 Other 然后填 endpoint。',
-    },
-    { key: 'access_key_id', label: 'Access Key ID' },
-    { key: 'secret_access_key', label: 'Secret Access Key', type: 'password' },
-    {
-      key: 'bucket',
-      label: 'Bucket',
-      placeholder: 'my-backup-bucket',
-      hint: '存储桶名称。备份文件会落到 <bucket>/<timestamp>.tar.gz。R2 / S3 必填。',
-    },
-    {
-      key: 'region',
-      label: 'Region',
-      placeholder: 'us-east-1 / 留空(R2 / MinIO 不需要)',
-      hint: 'AWS 必填(如 us-east-1 / ap-east-1)。R2 可填 auto 也可留空。MinIO / Other 通常不需要。',
-    },
-    {
-      key: 'endpoint',
-      label: 'Endpoint',
-      placeholder: 'https://<account-id>.r2.cloudflarestorage.com',
-      hint: 'R2:https://<account-id>.r2.cloudflarestorage.com。AWS 留空(自动选 region)。MinIO:你的服务器地址。',
-      showWhen: {
-        key: 'provider',
-        equals: ['Cloudflare', 'Alibaba', 'TencentCOS', 'Wasabi', 'DigitalOcean', 'Minio', 'IBMCOS', 'Other'],
-      },
-    },
-  ],
-  b2: [
-    { key: 'account', label: 'Account ID' },
-    { key: 'key', label: 'Application Key', type: 'password' },
-    {
-      key: 'bucket',
-      label: 'Bucket',
-      placeholder: 'my-backup-bucket',
-      hint: '存储桶名称,备份文件会落到 <bucket>/<timestamp>.tar.gz。',
-    },
-  ],
-  drive: [
-    { key: 'client_id', label: 'Client ID' },
-    { key: 'client_secret', label: 'Client Secret', type: 'password' },
-    { key: 'token', label: 'OAuth Token (JSON)', type: 'password' },
-  ],
-  onedrive: [
-    { key: 'client_id', label: 'Client ID' },
-    { key: 'client_secret', label: 'Client Secret', type: 'password' },
-    { key: 'token', label: 'OAuth Token (JSON)', type: 'password' },
-  ],
-  dropbox: [
-    { key: 'client_id', label: 'Client ID' },
-    { key: 'client_secret', label: 'Client Secret', type: 'password' },
-    { key: 'token', label: 'OAuth Token (JSON)', type: 'password' },
-  ],
-  webdav: [
-    { key: 'url', label: 'URL', placeholder: 'https://example.com/dav' },
-    { key: 'vendor', label: 'Vendor', placeholder: 'nextcloud / owncloud / other' },
-    { key: 'user', label: 'User' },
-    { key: 'pass', label: 'Password', type: 'password' },
-  ],
-  sftp: [
-    { key: 'host', label: 'Host' },
-    { key: 'port', label: 'Port', placeholder: '22' },
-    { key: 'user', label: 'User' },
-    { key: 'pass', label: 'Password', type: 'password' },
-  ],
-  ftp: [
-    { key: 'host', label: 'Host' },
-    { key: 'port', label: 'Port', placeholder: '21' },
-    { key: 'user', label: 'User' },
-    { key: 'pass', label: 'Password', type: 'password' },
-  ],
-  alias: [
-    { key: 'remote', label: 'Target remote', placeholder: 'other-remote:path' },
-  ],
-  local: [],
+function s3Providers(t: Translate): Array<{ value: string; label: string }> {
+  return [
+    { value: 'AWS', label: 'AWS' },
+    { value: 'Cloudflare', label: 'Cloudflare R2' },
+    { value: 'Alibaba', label: t('backup.remote.provider.alibaba') },
+    { value: 'TencentCOS', label: t('backup.remote.provider.tencent') },
+    { value: 'Backblaze', label: 'Backblaze B2 (S3 API)' },
+    { value: 'Wasabi', label: 'Wasabi' },
+    { value: 'DigitalOcean', label: 'DigitalOcean Spaces' },
+    { value: 'Minio', label: t('backup.remote.provider.minio') },
+    { value: 'IBMCOS', label: 'IBM COS' },
+    { value: 'Other', label: t('backup.remote.provider.other') },
+  ]
 }
 
-const BACKEND_LABELS: Record<string, string> = {
-  s3: 'S3 兼容(AWS / Cloudflare R2 / Aliyun OSS / MinIO ...)',
-  b2: 'Backblaze B2',
-  drive: 'Google Drive',
-  onedrive: 'OneDrive',
-  dropbox: 'Dropbox',
-  webdav: 'WebDAV (Nextcloud / 自建)',
-  sftp: 'SFTP',
-  ftp: 'FTP',
-  alias: 'Alias (path 别名)',
-  local: 'Local 路径(同机)',
+function backendFields(t: Translate): Record<string, FieldSpec[]> {
+  return {
+    s3: [
+      {
+        key: 'provider',
+        label: 'Provider',
+        type: 'select',
+        options: s3Providers(t),
+        hint: t('backup.remote.hint.provider'),
+      },
+      { key: 'access_key_id', label: 'Access Key ID' },
+      { key: 'secret_access_key', label: 'Secret Access Key', type: 'password' },
+      {
+        key: 'bucket',
+        label: 'Bucket',
+        placeholder: 'my-backup-bucket',
+        hint: t('backup.remote.hint.bucket'),
+      },
+      {
+        key: 'region',
+        label: 'Region',
+        placeholder: t('backup.remote.placeholder.region'),
+        hint: t('backup.remote.hint.region'),
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint',
+        placeholder: 'https://<account-id>.r2.cloudflarestorage.com',
+        hint: t('backup.remote.hint.endpoint'),
+        showWhen: {
+          key: 'provider',
+          equals: ['Cloudflare', 'Alibaba', 'TencentCOS', 'Wasabi', 'DigitalOcean', 'Minio', 'IBMCOS', 'Other'],
+        },
+      },
+    ],
+    b2: [
+      { key: 'account', label: 'Account ID' },
+      { key: 'key', label: 'Application Key', type: 'password' },
+      {
+        key: 'bucket',
+        label: 'Bucket',
+        placeholder: 'my-backup-bucket',
+        hint: t('backup.remote.hint.b2Bucket'),
+      },
+    ],
+    drive: [
+      { key: 'client_id', label: 'Client ID' },
+      { key: 'client_secret', label: 'Client Secret', type: 'password' },
+      { key: 'token', label: 'OAuth Token (JSON)', type: 'password' },
+    ],
+    onedrive: [
+      { key: 'client_id', label: 'Client ID' },
+      { key: 'client_secret', label: 'Client Secret', type: 'password' },
+      { key: 'token', label: 'OAuth Token (JSON)', type: 'password' },
+    ],
+    dropbox: [
+      { key: 'client_id', label: 'Client ID' },
+      { key: 'client_secret', label: 'Client Secret', type: 'password' },
+      { key: 'token', label: 'OAuth Token (JSON)', type: 'password' },
+    ],
+    webdav: [
+      { key: 'url', label: 'URL', placeholder: 'https://example.com/dav' },
+      { key: 'vendor', label: 'Vendor', placeholder: 'nextcloud / owncloud / other' },
+      { key: 'user', label: 'User' },
+      { key: 'pass', label: 'Password', type: 'password' },
+    ],
+    sftp: [
+      { key: 'host', label: 'Host' },
+      { key: 'port', label: 'Port', placeholder: '22' },
+      { key: 'user', label: 'User' },
+      { key: 'pass', label: 'Password', type: 'password' },
+    ],
+    ftp: [
+      { key: 'host', label: 'Host' },
+      { key: 'port', label: 'Port', placeholder: '21' },
+      { key: 'user', label: 'User' },
+      { key: 'pass', label: 'Password', type: 'password' },
+    ],
+    alias: [
+      { key: 'remote', label: 'Target remote', placeholder: 'other-remote:path' },
+    ],
+    local: [],
+  }
+}
+
+function backendLabels(t: Translate): Record<string, string> {
+  return {
+    s3: t('backup.remote.backend.s3'),
+    b2: 'Backblaze B2',
+    drive: 'Google Drive',
+    onedrive: 'OneDrive',
+    dropbox: 'Dropbox',
+    webdav: t('backup.remote.backend.webdav'),
+    sftp: 'SFTP',
+    ftp: 'FTP',
+    alias: t('backup.remote.backend.alias'),
+    local: t('backup.remote.backend.local'),
+  }
 }
 
 type Props = {
@@ -486,7 +494,7 @@ function RemoteEditForm({
     }
   }
 
-  const fields = (BACKEND_FIELDS[backend] || []).filter((f) => {
+  const fields = (backendFields(t)[backend] || []).filter((f) => {
     if (!f.showWhen) return true
     const cur = config[f.showWhen.key]
     if (Array.isArray(f.showWhen.equals)) {
@@ -533,7 +541,7 @@ function RemoteEditForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(BACKEND_LABELS).map(([k, label]) => (
+              {Object.entries(backendLabels(t)).map(([k, label]) => (
                 <SelectItem key={k} value={k}>
                   {label}
                 </SelectItem>

@@ -435,6 +435,12 @@ function IconPickerDialog({
   const [activeGroupIdx, setActiveGroupIdx] = useState(0)
   const [query, setQuery] = useState('')
 
+  const labelOf = (item: CategoryIconItem) => {
+    const k = `categories.iconLabel.${kind}.${item.key}`
+    const v = t(k)
+    return v === k ? item.label : v
+  }
+
   useEffect(() => {
     if (!open) {
       setQuery('')
@@ -459,7 +465,8 @@ function IconPickerDialog({
       for (const item of group.icons) {
         if (seen.has(item.key)) continue
         const matchKey = item.key.toLowerCase().includes(q)
-        const matchLabel = item.label.toLowerCase().includes(q)
+        const matchLabel = item.label.toLowerCase().includes(q) ||
+          labelOf(item).toLowerCase().includes(q)
         if (matchKey || matchLabel) {
           seen.add(item.key)
           out.push(item)
@@ -467,7 +474,7 @@ function IconPickerDialog({
       }
     }
     return out
-  }, [groups, query])
+  }, [groups, query, kind, t])
 
   const visibleIcons: CategoryIconItem[] = isSearching
     ? searchResults
@@ -481,7 +488,7 @@ function IconPickerDialog({
         key={item.key}
         type="button"
         title={item.key}
-        aria-label={item.label}
+        aria-label={labelOf(item)}
         onClick={() => {
           onSelect(item.key)
           onClose()
@@ -494,7 +501,7 @@ function IconPickerDialog({
       >
         <CategoryIcon icon={item.key} iconType="material" size={22} />
         <span className="truncate text-[10px] leading-none text-muted-foreground">
-          {item.label}
+          {labelOf(item)}
         </span>
       </button>
     )

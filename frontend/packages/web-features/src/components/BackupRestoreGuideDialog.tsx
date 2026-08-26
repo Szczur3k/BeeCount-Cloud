@@ -62,22 +62,22 @@ export function BackupRestoreGuideDialog({
 
   const path = restore?.extracted_path || '/data/restore/<run_id>/extracted'
 
-  const shellScript = `# 1. 停服(Docker)
+  const shellScript = `# ${t('backup.restore.script.1')}
 docker compose stop beecount-cloud
 
-# 2. 备一份当前数据(以防回滚)
+# ${t('backup.restore.script.2')}
 mv /path/to/data/beecount.db /path/to/data/beecount.db.before-restore.bak
 
-# 3. 替换 SQLite + 附件 + JWT 密钥
+# ${t('backup.restore.script.3')}
 cp ${path}/db.sqlite3 /path/to/data/beecount.db
 rsync -a ${path}/attachments/ /path/to/data/attachments/
 [ -f ${path}/.jwt_secret ] && cp ${path}/.jwt_secret /path/to/data/.jwt_secret
 
-# 4. 启动服务
+# ${t('backup.restore.script.4')}
 docker compose start beecount-cloud
 
-# 5. 验证一切正常后清理 restore 目录
-# (或在 Web UI 点「清理」按钮)
+# ${t('backup.restore.script.5')}
+# ${t('backup.restore.script.5b')}
 rm -rf ${path}/..`
 
   const copyAll = async () => {
@@ -261,7 +261,7 @@ rm -rf ${path}/..`
                     {t('backup.restore.cli.step6')}
                     <pre className="mt-1 overflow-x-auto rounded bg-muted/40 p-1 font-mono text-[10px]">
                       {restore?.backup_filename?.endsWith('.zip')
-                        ? `unzip ${restore.backup_filename}    # 或双击,系统弹密码框`
+                        ? `unzip ${restore.backup_filename}    # ${t('backup.restore.cli.unzipHint')}`
                         : `tar -xzf ${restore?.backup_filename || '<filename>.tar.gz'}`}
                     </pre>
                   </li>

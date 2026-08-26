@@ -25,7 +25,7 @@ export function detectBrowserLocale(): Locale {
 }
 
 export function initialLocale(): Locale {
-  if (typeof window === 'undefined') return 'en'
+  if (typeof window === 'undefined') return 'pl'
   const raw = window.localStorage.getItem(LOCALE_STORAGE_KEY)
   return raw ? normalizeLocale(raw) : detectBrowserLocale()
 }

@@ -75,13 +75,28 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* Latin-first: never put CJK families before Inter/Sora or Polish
+       diacritics pick a Chinese font (tofu / wrong width). */
     font-family:
       'Sora',
-      'Avenir Next',
-      'SF Pro Text',
-      'PingFang SC',
-      'Noto Sans CJK SC',
+      'Inter',
+      ui-sans-serif,
+      system-ui,
       'Segoe UI',
+      'Noto Sans',
+      'Liberation Sans',
+      sans-serif;
+  }
+
+  html[lang^='zh'] body {
+    font-family:
+      'Sora',
+      'Inter',
+      'PingFang SC',
+      'Noto Sans SC',
+      'Noto Sans CJK SC',
+      ui-sans-serif,
+      system-ui,
       sans-serif;
   }
 }

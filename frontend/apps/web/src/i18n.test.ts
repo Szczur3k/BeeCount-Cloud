@@ -26,6 +26,7 @@ describe('i18n locale runtime', () => {
     expect(normalizeLocale('zh-CN')).toBe('zh-CN')
     expect(normalizeLocale('en-US')).toBe('en')
     expect(normalizeLocale('pl-PL')).toBe('pl')
+    expect(normalizeLocale('pl-PL')).toBe('pl')
     expect(normalizeLocale('pl')).toBe('pl')
   })
 

@@ -391,7 +391,9 @@ export function CommandPalette({ open, onClose, onOpenAnnualReport }: CommandPal
                 ? 'zh-CN'
                 : locale === 'zh-TW'
                   ? 'zh-TW'
-                  : 'en-US'
+                  : locale === 'pl'
+                    ? 'pl-PL'
+                    : 'en-US'
             }
             onInterim={(text) => setQuery(text)}
             onFinal={(text) => setQuery(text)}

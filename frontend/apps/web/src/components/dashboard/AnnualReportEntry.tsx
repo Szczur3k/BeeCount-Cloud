@@ -85,7 +85,12 @@ export function AnnualReportLauncher({ open, onClose }: AnnualReportLauncherProp
           name: currentLedger?.ledger_name || '',
           currency: currency || 'CNY',
         }
-        const d = await fetchAnnualReportData(token, ledger, year)
+        const d = await fetchAnnualReportData(
+          token,
+          ledger,
+          year,
+          t('home.monthDonut.uncategorized'),
+        )
         if (!d.hasSufficientData) {
           setError(`${t(TKEY.insufficientDataTitle)} — ${t(TKEY.insufficientDataBody)}`)
           setPhase('picker')

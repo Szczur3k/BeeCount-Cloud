@@ -59,8 +59,8 @@ const DISPLAY_NAME_MAX = 60
 // 主币种候选列表 —— 跟 mobile prefs `baseCurrency` 常见取值对齐。当前值不在列表时
 // 会在下方动态补进去,保证旧值也能正常展示 / 选中。
 const PRIMARY_CURRENCY_OPTIONS = [
-  'CNY', 'USD', 'EUR', 'JPY', 'HKD', 'GBP', 'KRW', 'SGD',
-  'AUD', 'CAD', 'TWD', 'THB', 'MYR', 'RUB', 'INR', 'CHF',
+  'PLN', 'EUR', 'USD', 'GBP', 'CHF', 'CZK', 'CNY', 'JPY', 'HKD', 'KRW', 'SGD',
+  'AUD', 'CAD', 'TWD', 'THB', 'MYR', 'RUB', 'INR',
 ]
 
 /** 按本地时段返回欢迎语 i18n key + 配图 —— 5-11 / 11-13 / 13-18 / 18-23 /

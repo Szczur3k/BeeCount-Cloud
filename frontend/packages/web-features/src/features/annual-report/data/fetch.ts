@@ -16,6 +16,7 @@ export async function fetchAnnualReportData(
   token: string,
   ledger: { id: string; name: string; currency: string },
   year: number,
+  uncategorizedName?: string,
 ): Promise<AnnualReportData> {
   // 时间窗口:本年 + 去年(用于 YoY 对比),取年初到年末(独占下界)
   const thisYearFrom = `${year}-01-01T00:00:00.000Z`
@@ -33,6 +34,7 @@ export async function fetchAnnualReportData(
     prevYearTxs: prevYear.map(toLite),
     year,
     ledger,
+    uncategorizedName,
   })
 }
 
