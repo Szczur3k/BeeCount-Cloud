@@ -29,31 +29,18 @@ Zasady:
 5. Pytania niezwiązane z księgowością / tą aplikacją — odmów krótko.
 """
 
-_SYSTEM_ZH = """\
-你是 BeeCount(蜜蜂记账)的助手,只基于下面提供的「相关文档」回答用户的问题。
-
-规则:
-1. **必须用中文回答**,即使相关文档是英文也要翻译成中文输出。
-2. 文档里没明确说的,直接回答「文档里没找到相关说明」,不要编造、不要发挥。
-3. 答案要简洁直接 — 步骤类问题给编号步骤;概念类问题用一两句话解释。
-4. 不要在答案末尾列引用来源(系统会自动贴)。
-5. 不要在中文输出里夹杂英文短语,除非是专有名词(如 PIN / 2FA)。
-6. 如果用户问跟 BeeCount / 记账无关,就说「这个问题不在我能回答的范围内」。
-"""
 
 _SYSTEM_EN = """\
 You are the assistant for BeeCount, a personal finance app. Answer ONLY based on the
 "Relevant Docs" provided below.
 
 Rules:
-1. **You MUST answer in English**, even if the relevant docs are in Chinese — translate
-   them to English in your reply.
+1. **You MUST answer in English**. Translate any non-English docs into English.
 2. If the docs don't clearly say something, answer "Sorry, the docs don't cover this"
    instead of making things up.
 3. Be concise. Step-by-step for how-to questions; one or two sentences for concept questions.
 4. Don't list source references at the end (the system appends them automatically).
-5. Don't mix Chinese characters into English output unless quoting a UI label that exists
-   only in Chinese.
+5. Don't mix unrelated languages into English output unless quoting a UI label.
 6. If the user asks something unrelated to BeeCount / personal finance, reply "That's outside
    what I can answer".
 """
@@ -103,34 +90,32 @@ def build_ask_messages(
 # B2 / B3 记账提取 — 截图 / 文字 → 1-N 笔 tx draft
 # ────────────────────────────────────────────────────────────────────────
 
-# B2 / B3 共用 schema(让 LLM 知道要输出什么)
-_TX_DRAFTS_SCHEMA_ZH = """\
-**输出格式必须严格遵守**:返回一个 JSON 对象,**最外层是 dict 不是 array**,
-只有一个 key `tx_drafts`,值才是 array。
+# Shared JSON schema for B2/B3
 
-正确:`{"tx_drafts": [{...}, {...}]}`
-**错误**(不要这样):`[{...}]`、`{"transactions": [...]}`、`{"items": [...]}`、
-单笔 dict `{...}`。即使只识别到 1 笔也要用 array。识别到 0 笔返 `{"tx_drafts": []}`。
+_TX_DRAFTS_SCHEMA_PL = """\
+**FORMAT WYJŚCIA**: zwróć obiekt JSON (nie tablicę) z jednym kluczem `tx_drafts`
+(wartość = tablica).
 
-每笔交易包含字段:
+Poprawnie: `{"tx_drafts": [{...}, {...}]}`
+Źle: `[{...}]`, `{"transactions": [...]}`, pojedynczy obiekt `{...}`.
+Zawsze tablica, nawet dla 1 transakcji. 0 pozycji: `{"tx_drafts": []}`.
+
+Pola każdej transakcji:
   - `type`: "expense" | "income" | "transfer"
-  - `amount`: 数字,绝对值(不带正负号)
-  - `happened_at`: ISO 8601 datetime,根据原文/图片日期推断;没日期用 "{{NOW}}"
-  - `category_name`: 从「可用类目」选,选不到用 ""(留给用户在前端选)
-  - `account_name`: 从「可用账户」选,选不到用 "";仅 expense/income 有意义
-  - `from_account_name` / `to_account_name`: 仅 transfer 用
-  - `note`: ≤15 字商家名 / 商品名 / 简短描述
-  - `currency`: 币种,必须是 3 位大写 ISO 4217 代码,**不要填货币符号,也不要填中文名**
-    - 常见对应:美元/美金/$ → USD,日元/日圆/円 → JPY,欧元/欧/€ → EUR,
-      英镑/£ → GBP,港币/港元 → HKD,新台币 → TWD,韩元 → KRW,泰铢 → THB
-    - 与账本主币种相同时留 ""(主币种是 CNY 时,「花了 50 元」留 "")
-    - 原文/图片出现任何外币说法(中文名、符号、代码都算)就必须填,别漏
-    - 例:「花了 45 美元」→ "USD";「星巴克 $6.5」→ "USD";「1200 日元」→ "JPY"
-  - `tags`: array,可空
+  - `amount`: liczba, wartość bezwzględna (bez znaku)
+  - `happened_at`: ISO 8601; zgadnij z źródła; brak daty → "{{NOW}}"
+  - `category_name`: z listy dostępnych kategorii; inaczej ""
+  - `account_name`: z listy kont; inaczej "" (expense/income)
+  - `from_account_name` / `to_account_name`: tylko transfer
+  - `note`: ≤15 znaków (sklep / opis)
+  - `currency`: 3-literowy kod ISO 4217 wielkimi literami — nigdy symbol ani nazwa
+    - Mapowanie: dolar/$ → USD, jen → JPY, euro/€ → EUR, funt/£ → GBP,
+      dolar HK → HKD, dolar TW → TWD, won → KRW, baht → THB, złoty/zł → PLN
+    - Zostaw "" gdy to waluta księgi
+    - Wypełnij, gdy źródło podaje inną walutę (nazwa, symbol lub kod)
+    - np. "wydałem 45 dolarów" → "USD"; "Starbucks $6.5" → "USD"
+  - `tags`: tablica, może być pusta
   - `confidence`: "high" | "medium" | "low"
-    - high: 金额 + 类型 + 时间 都明确从原始内容抠出来
-    - medium: 某些字段是合理推断(类目)
-    - low: 多个字段不确定,请用户核对
 """
 
 _TX_DRAFTS_SCHEMA_EN = """\
@@ -162,24 +147,6 @@ Each draft has fields:
 """
 
 # B2 截图 prompt
-_PARSE_TX_IMAGE_ZH = """\
-你是 BeeCount 记账助手。我会给你一张支付凭证截图(可能是支付宝/微信/信用卡推送/
-银行账单截图),你需要提取所有交易记录。
-
-当前时间:{NOW}
-账本可用类目:{CATEGORIES}
-账本可用账户:{ACCOUNTS}
-{CURRENCY_HINT}
-
-{SCHEMA}
-
-要求:
-1. 图片如果完全不像支付凭证(比如截了个聊天界面),返回 `{{"tx_drafts": []}}`
-2. 多笔识别场景:信用卡账单 / 微信账单列表 / 一个月汇总图 — 提取所有清晰的条目
-3. **不要编造**:看不清的字段用 "" 或 null,不要瞎填;金额看不清的整笔跳过
-
-只输出 JSON,不要前后加任何解释文字。
-"""
 
 _PARSE_TX_IMAGE_EN = """\
 You are BeeCount's bookkeeping assistant. I'll give you a payment receipt screenshot
@@ -205,31 +172,6 @@ Output JSON only, no prefix/suffix text.
 """
 
 # B3 文本 prompt
-_PARSE_TX_TEXT_ZH = """\
-你是 BeeCount 记账助手。我会给你一段记账文本(可能是微信/支付宝/信用卡账单段落,
-也可能是用户手写的待入账列表),你需要提取所有交易记录。
-
-当前时间:{NOW}
-账本可用类目:{CATEGORIES}
-账本可用账户:{ACCOUNTS}
-{CURRENCY_HINT}
-
-文本:
-{TEXT}
-
-{SCHEMA}
-
-要求:
-1. 字段缺失处理:
-   - 没明确日期 → 推断("昨天打车" → 昨天日期 + 推断时间)
-   - 完全没日期信息 → 用 "{NOW}"
-   - 没明确类目 → 从文本推断(美团 → 餐饮,滴滴 → 交通);推不出留 ""
-2. 多笔识别:每行一笔 / 用 - * 1. 列表分隔的也是多笔
-3. 文本里全是闲聊 / 不是账单 → 返 `{{"tx_drafts": []}}`
-4. **不要编造金额**:看不清的金额直接跳过那笔(不要瞎填),宁缺毋滥
-
-只输出 JSON,不要前后加任何解释文字。
-"""
 
 _PARSE_TX_TEXT_EN = """\
 You are BeeCount's bookkeeping assistant. I'll give you a piece of text (could be a
@@ -331,23 +273,22 @@ def _format_accounts_hint(
 
 
 def _format_currency_hint(
-    accounts: list[tuple[str, str | None]], ledger_currency: str, *, is_zh: bool,
+    accounts: list[tuple[str, str | None]], ledger_currency: str, *, lang: str = "pl",
 ) -> str:
-    """币种提示行。账本内只有一种币种时只报主币种(一行,极短);出现外币账户时
-    额外列出可用币种。无论哪种情况都告诉 LLM「也可返回其它 ISO 代码」是多余的
-    —— schema 里已经写了,这里只给上下文。"""
-    base = (ledger_currency or "CNY").strip().upper()
+    """One-line currency context for the LLM (base + any foreign account codes)."""
+    kind = _locale_kind(lang)
+    base = (ledger_currency or "PLN").strip().upper()
     others = sorted(
         {(c or "").strip().upper() for _, c in accounts if (c or "").strip()} - {base, ""}
     )
-    if is_zh:
-        line = f"账本主币种:{base}"
+    if kind == "en":
+        line = f"Ledger base currency: {base}"
         if others:
-            line += f";账本内已有外币账户:{'、'.join(others)}"
+            line += f"; foreign-currency accounts present: {', '.join(others)}"
         return line
-    line = f"Ledger base currency: {base}"
+    line = f"Waluta księgi: {base}"
     if others:
-        line += f"; foreign-currency accounts present: {', '.join(others)}"
+        line += f"; konta w innej walucie: {', '.join(others)}"
     return line
 
 
@@ -375,12 +316,12 @@ def build_parse_tx_image_messages(
         template = _PARSE_TX_IMAGE_EN
     else:
         template = _PARSE_TX_IMAGE_PL
-    schema = _TX_DRAFTS_SCHEMA_EN
+    schema = _TX_DRAFTS_SCHEMA_EN if kind == "en" else _TX_DRAFTS_SCHEMA_PL
     prompt = template.format(
         NOW=now.isoformat(timespec="seconds"),
         CATEGORIES=_format_categories_hint(categories),
         ACCOUNTS=_format_accounts_hint(accounts, ledger_currency),
-        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, is_zh=False),
+        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, lang=locale),
         SCHEMA=schema,
     )
     return [
@@ -412,12 +353,12 @@ def build_parse_tx_text_messages(
         template = _PARSE_TX_TEXT_EN
     else:
         template = _PARSE_TX_TEXT_PL
-    schema = _TX_DRAFTS_SCHEMA_EN
+    schema = _TX_DRAFTS_SCHEMA_EN if kind == "en" else _TX_DRAFTS_SCHEMA_PL
     prompt = template.format(
         NOW=now.isoformat(timespec="seconds"),
         CATEGORIES=_format_categories_hint(categories),
         ACCOUNTS=_format_accounts_hint(accounts, ledger_currency),
-        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, is_zh=False),
+        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, lang=locale),
         TEXT=text,
         SCHEMA=schema,
     )

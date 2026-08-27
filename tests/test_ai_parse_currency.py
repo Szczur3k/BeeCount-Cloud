@@ -114,17 +114,17 @@ def test_accounts_hint_empty():
 
 
 def test_currency_hint_single_currency_is_one_short_line():
-    assert _format_currency_hint([("微信", "CNY")], "CNY", is_zh=True) == "账本主币种:CNY"
+    assert _format_currency_hint([("PKO", "PLN")], "PLN") == "Waluta księgi: PLN"
 
 
 def test_currency_hint_lists_foreign_accounts():
-    hint = _format_currency_hint([("微信", "CNY"), ("Chase", "USD")], "CNY", is_zh=True)
-    assert "USD" in hint and hint.startswith("账本主币种:CNY")
+    hint = _format_currency_hint([("PKO", "PLN"), ("Chase", "USD")], "PLN")
+    assert "USD" in hint and hint.startswith("Waluta księgi: PLN")
 
 
 def test_currency_hint_en():
-    hint = _format_currency_hint([("Chase", "USD")], "CNY", is_zh=False)
-    assert hint.startswith("Ledger base currency: CNY") and "USD" in hint
+    hint = _format_currency_hint([("Chase", "USD")], "PLN", lang="en")
+    assert hint.startswith("Ledger base currency: PLN") and "USD" in hint
 
 
 # ── 自定义 prompt 兼容(A7/A8)────────────────────────────────────────────
