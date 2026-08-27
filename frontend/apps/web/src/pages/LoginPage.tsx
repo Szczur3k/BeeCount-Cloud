@@ -97,7 +97,7 @@ export function LoginPage({ onLoggedIn }: LoginPageProps) {
 
       {/* 右上角工具栏 */}
       <div className="absolute right-4 top-4 flex items-center gap-2">
-        <LanguageToggle />
+        <LanguageToggle compact />
         <ThemeToggle />
       </div>
 

@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  LanguageToggle,
   Select,
   SelectContent,
   SelectItem,
@@ -293,6 +294,9 @@ export function AppHeader({ onOpenLogs, onOpenAbout }: Props) {
                 <ScrollText className="h-4 w-4" />
               </button>
             ) : null}
+            <div className="hidden md:block">
+              <LanguageToggle compact />
+            </div>
             {profileMe?.email ? (
               <AvatarDropdown
                 profileMe={{

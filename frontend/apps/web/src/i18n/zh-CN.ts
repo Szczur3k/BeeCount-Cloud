@@ -56,6 +56,13 @@ const zhCN = {
   'shell.placeholder.keyword': '关键词',
   'shell.placeholder.txType': 'expense/income/transfer',
   'shell.language': '切换语言',
+  'settings.language.title': '语言',
+  'settings.language.hint':
+    '保存在当前浏览器中，与手机或操作系统语言无关。',
+  'locale.name.pl': 'Polski',
+  'locale.name.en': 'English',
+  'locale.name.zh-CN': '简体中文',
+  'locale.name.zh-TW': '繁體中文',
   'shell.theme': '切换主题',
   'shell.logout': '退出登录',
 

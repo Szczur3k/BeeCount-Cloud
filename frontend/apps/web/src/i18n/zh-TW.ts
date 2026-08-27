@@ -56,6 +56,13 @@ const zhTW = {
   'shell.placeholder.keyword': '關鍵字',
   'shell.placeholder.txType': 'expense/income/transfer',
   'shell.language': '切換語言',
+  'settings.language.title': '語言',
+  'settings.language.hint':
+    '儲存在此瀏覽器中，與手機或作業系統語言無關。',
+  'locale.name.pl': 'Polski',
+  'locale.name.en': 'English',
+  'locale.name.zh-CN': '简体中文',
+  'locale.name.zh-TW': '繁體中文',
   'shell.theme': '切換主題',
   'shell.logout': '登出',
 

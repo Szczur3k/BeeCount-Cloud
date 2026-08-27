@@ -56,6 +56,13 @@ const pl = {
   'shell.placeholder.keyword': 'słowo kluczowe',
   'shell.placeholder.txType': 'wydatek/przychód/przelew',
   'shell.language': 'Zmień język',
+  'settings.language.title': 'Język',
+  'settings.language.hint':
+    'Zapisuje się w tej przeglądarce. Nie zależy od telefonu ani systemu.',
+  'locale.name.pl': 'Polski',
+  'locale.name.en': 'English',
+  'locale.name.zh-CN': '简体中文',
+  'locale.name.zh-TW': '繁體中文',
   'shell.theme': 'Zmień motyw',
   'shell.logout': 'Wyloguj',
 

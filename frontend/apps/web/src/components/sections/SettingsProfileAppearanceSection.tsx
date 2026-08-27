@@ -34,6 +34,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
+  LanguageToggle,
   useT,
   useToast,
   usePrimaryColor,
@@ -285,6 +286,17 @@ export function SettingsProfileAppearanceSection() {
 
   return (
     <div className="space-y-4">
+      <Card className="bc-panel">
+        <CardHeader>
+          <CardTitle>{t('settings.language.title')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">{t('settings.language.hint')}</p>
+          <div className="max-w-xs">
+            <LanguageToggle />
+          </div>
+        </CardContent>
+      </Card>
       <Card className="bc-panel overflow-hidden">
         <div className="relative">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent" />

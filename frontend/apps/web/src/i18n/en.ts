@@ -56,6 +56,13 @@ const en = {
   'shell.placeholder.keyword': 'keyword',
   'shell.placeholder.txType': 'expense/income/transfer',
   'shell.language': 'Switch language',
+  'settings.language.title': 'Language',
+  'settings.language.hint':
+    'Saved in this browser. Independent from the phone or operating system.',
+  'locale.name.pl': 'Polski',
+  'locale.name.en': 'English',
+  'locale.name.zh-CN': '简体中文',
+  'locale.name.zh-TW': '繁體中文',
   'shell.theme': 'Switch theme',
   'shell.logout': 'Logout',
 
