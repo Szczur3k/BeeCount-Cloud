@@ -596,7 +596,7 @@ async def parse_and_create_from_text(
         "POST",
         path,
         user,
-        json={"text": text, "ledger_id": ledger_id, "locale": "zh"},
+        json={"text": text, "ledger_id": ledger_id, "locale": "pl"},
     )
 
     drafts = parsed.get("tx_drafts") or []

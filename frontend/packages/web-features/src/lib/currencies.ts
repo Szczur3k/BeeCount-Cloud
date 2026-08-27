@@ -31,7 +31,6 @@ export function suggestedCurrencyCodes(locale: string): string[] {
   const l = (locale || '').toLowerCase()
   let first = 'PLN'
   if (l.startsWith('pl')) first = 'PLN'
-  else if (l.startsWith('zh')) first = 'CNY'
   else if (l.startsWith('ja')) first = 'JPY'
   else if (l.startsWith('ko')) first = 'KRW'
   else if (l.startsWith('en') && (l.includes('-us') || l.endsWith('us'))) first = 'USD'
@@ -52,7 +51,7 @@ export function suggestedCurrencyCodes(locale: string): string[] {
  * 用 currencyDisplay:'symbol'(非 narrowSymbol):JPY/CNY 的 narrow 同为 "¥",
  * 多币种列表里无法区分 —— symbol 形态自带区分前缀。未知 code 回退 code 本身。
  */
-export function currencySymbol(code: string, locale = 'zh-CN'): string {
+export function currencySymbol(code: string, locale = 'pl-PL'): string {
   const upper = code.toUpperCase()
   try {
     const parts = new Intl.NumberFormat(locale, {

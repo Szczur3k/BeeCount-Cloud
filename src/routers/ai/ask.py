@@ -53,7 +53,7 @@ class AskRequest(BaseModel):
     """前端 POST /ai/ask 的 body。"""
 
     query: str = Field(min_length=1, max_length=_MAX_QUERY_CHARS)
-    locale: str = Field(default="zh", pattern=r"^(zh|zh-CN|zh-TW|en|pl|pl-PL|pl-pl)$")
+    locale: str = Field(default="pl", pattern=r"^(zh|zh-CN|zh-TW|en|pl|pl-PL|pl-pl)$")
 
 
 def _sse(event_type: str, data: object) -> str:

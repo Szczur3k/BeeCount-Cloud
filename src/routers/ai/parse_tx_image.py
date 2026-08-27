@@ -63,7 +63,7 @@ _ALLOWED_MIMES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 async def parse_tx_image(
     image: UploadFile = File(...),
     ledger_id: str | None = Form(default=None),
-    locale: str = Form(default="zh"),
+    locale: str = Form(default="pl"),
     _scopes: set[str] = Depends(_PARSE_SCOPE_DEP),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),

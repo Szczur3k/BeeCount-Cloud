@@ -139,7 +139,7 @@ export async function parseTxImage(
   const fd = new FormData()
   fd.append('image', options.image, 'screenshot.jpg')
   if (options.ledgerId) fd.append('ledger_id', options.ledgerId)
-  fd.append('locale', options.locale || 'zh')
+  fd.append('locale', options.locale || 'pl')
 
   const res = await fetch(`${API_BASE}/ai/parse-tx-image`, {
     method: 'POST',
@@ -162,7 +162,7 @@ export async function parseTxText(
   return authedPost<ParseTxTextResult>('/ai/parse-tx-text', token, {
     text: options.text,
     ledger_id: options.ledgerId,
-    locale: options.locale || 'zh',
+    locale: options.locale || 'pl',
   })
 }
 
@@ -224,7 +224,7 @@ export async function batchCreateTransactions(
       auto_ai_tag: options.autoAiTag ?? true,
       extra_tag_name: options.extraTagName ?? null,
       attach_image_id: options.attachImageId ?? null,
-      locale: options.locale || 'zh',
+      locale: options.locale || 'pl',
     }
   )
 }

@@ -355,9 +355,10 @@ function AskFallback({
   locale: string
   t: T
 }) {
-  const docsBase = locale.startsWith('zh')
-    ? 'https://count.beejz.com/docs/'
-    : 'https://count.beejz.com/en/docs/'
+  const docsBase =
+    locale === 'en'
+      ? 'https://count.beejz.com/en/docs/'
+      : 'https://count.beejz.com/en/docs/'
   const docsSearchUrl = `${docsBase}?q=${encodeURIComponent(query)}`
 
   let title: string

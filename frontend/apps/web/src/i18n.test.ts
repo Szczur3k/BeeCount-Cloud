@@ -22,19 +22,19 @@ describe('i18n locale runtime', () => {
   })
 
   it('normalizes locale values', () => {
-    expect(normalizeLocale('zh-HK')).toBe('zh-TW')
-    expect(normalizeLocale('zh-CN')).toBe('zh-CN')
+    expect(normalizeLocale('zh-HK')).toBe('pl')
+    expect(normalizeLocale('zh-CN')).toBe('pl')
     expect(normalizeLocale('en-US')).toBe('en')
     expect(normalizeLocale('pl-PL')).toBe('pl')
-    expect(normalizeLocale('pl-PL')).toBe('pl')
     expect(normalizeLocale('pl')).toBe('pl')
+    expect(normalizeLocale(null)).toBe('pl')
   })
 
   it('detects browser locale and persists to localStorage', () => {
     const store = new Map<string, string>()
     vi.stubGlobal('navigator', {
-      language: 'zh-HK',
-      languages: ['zh-HK', 'en-US']
+      language: 'en-US',
+      languages: ['en-US', 'pl-PL']
     })
     vi.stubGlobal('window', {
       localStorage: {
@@ -45,12 +45,12 @@ describe('i18n locale runtime', () => {
       }
     })
 
-    expect(detectBrowserLocale()).toBe('zh-TW')
-    expect(initialLocale()).toBe('zh-TW')
-
-    persistLocale('en')
-    expect(store.get(LOCALE_STORAGE_KEY)).toBe('en')
+    expect(detectBrowserLocale()).toBe('en')
     expect(initialLocale()).toBe('en')
+
+    persistLocale('pl')
+    expect(store.get(LOCALE_STORAGE_KEY)).toBe('pl')
+    expect(initialLocale()).toBe('pl')
   })
 })
 

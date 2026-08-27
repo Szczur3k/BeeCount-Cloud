@@ -225,25 +225,11 @@ export function AvatarDropdown({
             </Segment>
           </PreferenceRow>
           <PreferenceRow icon={Languages} label={t('shell.language')}>
-            <Segment
-              active={locale === 'zh-CN'}
-              onClick={() => setLocale('zh-CN')}
-              title="简体中文"
-            >
-              简
-            </Segment>
-            <Segment
-              active={locale === 'zh-TW'}
-              onClick={() => setLocale('zh-TW')}
-              title="繁體中文"
-            >
-              繁
+            <Segment active={locale === 'pl'} onClick={() => setLocale('pl')} title="Polski">
+              PL
             </Segment>
             <Segment active={locale === 'en'} onClick={() => setLocale('en')} title="English">
               EN
-            </Segment>
-            <Segment active={locale === 'pl'} onClick={() => setLocale('pl')} title="Polski">
-              PL
             </Segment>
           </PreferenceRow>
 

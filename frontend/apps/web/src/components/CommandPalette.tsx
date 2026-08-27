@@ -386,15 +386,7 @@ export function CommandPalette({ open, onClose, onOpenAnnualReport }: CommandPal
             autoFocus
           />
           <VoiceInputButton
-            lang={
-              locale === 'zh-CN'
-                ? 'zh-CN'
-                : locale === 'zh-TW'
-                  ? 'zh-TW'
-                  : locale === 'pl'
-                    ? 'pl-PL'
-                    : 'en-US'
-            }
+            lang={locale === 'en' ? 'en-US' : 'pl-PL'}
             onInterim={(text) => setQuery(text)}
             onFinal={(text) => setQuery(text)}
           />

@@ -67,9 +67,7 @@ def build_ask_messages(
 ) -> list[dict[str, str]]:
     """拼出 OpenAI-compatible /chat/completions 的 messages 数组。"""
     lang_key = (lang or "pl").lower()
-    if lang_key.startswith("zh"):
-        system = _SYSTEM_ZH
-    elif lang_key.startswith("en"):
+    if lang_key.startswith("en"):
         system = _SYSTEM_EN
     else:
         system = _SYSTEM_PL
@@ -81,18 +79,12 @@ def build_ask_messages(
             header += f" — {c.chunk.section}"
         parts.append(f"{header}\n{c.chunk.content.strip()}")
     docs_block = "\n\n".join(parts) if parts else (
-        "(没找到相关文档)"
-        if lang_key.startswith("zh")
-        else "(no relevant docs found)"
+        "(no relevant docs found)"
         if lang_key.startswith("en")
         else "(brak fragmentów dokumentacji)"
     )
 
-    if lang_key.startswith("zh"):
-        user_content = (
-            f"## 相关文档\n\n{docs_block}\n\n## 用户问题\n\n{query}"
-        )
-    elif lang_key.startswith("en"):
+    if lang_key.startswith("en"):
         user_content = (
             f"## Relevant Docs\n\n{docs_block}\n\n## User Question\n\n{query}"
         )
@@ -309,8 +301,6 @@ Tylko JSON, bez komentarza.
 
 def _locale_kind(locale: str | None) -> str:
     key = (locale or "pl").lower()
-    if key.startswith("zh"):
-        return "zh"
     if key.startswith("en"):
         return "en"
     return "pl"
@@ -365,7 +355,7 @@ def build_parse_tx_image_messages(
     *,
     categories: list[str],
     accounts: list[tuple[str, str | None]],
-    ledger_currency: str = "CNY",
+    ledger_currency: str = "PLN",
     now: datetime,
     locale: str = "pl",
     image_data_url: str,
@@ -379,21 +369,18 @@ def build_parse_tx_image_messages(
         —— 自定义模板不含 `{CURRENCY_HINT}` 时 `.format()` 直接忽略该 kwarg,老模板零影响
     """
     kind = _locale_kind(locale)
-    is_zh = kind == "zh"
     if custom_prompt_template:
         template = custom_prompt_template
-    elif kind == "zh":
-        template = _PARSE_TX_IMAGE_ZH
     elif kind == "en":
         template = _PARSE_TX_IMAGE_EN
     else:
         template = _PARSE_TX_IMAGE_PL
-    schema = _TX_DRAFTS_SCHEMA_ZH if is_zh else _TX_DRAFTS_SCHEMA_EN
+    schema = _TX_DRAFTS_SCHEMA_EN
     prompt = template.format(
         NOW=now.isoformat(timespec="seconds"),
         CATEGORIES=_format_categories_hint(categories),
         ACCOUNTS=_format_accounts_hint(accounts, ledger_currency),
-        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, is_zh=is_zh),
+        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, is_zh=False),
         SCHEMA=schema,
     )
     return [
@@ -412,28 +399,25 @@ def build_parse_tx_text_messages(
     text: str,
     categories: list[str],
     accounts: list[tuple[str, str | None]],
-    ledger_currency: str = "CNY",
+    ledger_currency: str = "PLN",
     now: datetime,
     locale: str = "pl",
     custom_prompt_template: str | None = None,
 ) -> list[dict[str, object]]:
     """B3 文字记账 — 拼 OpenAI chat API messages。参数语义同 [build_parse_tx_image_messages]。"""
     kind = _locale_kind(locale)
-    is_zh = kind == "zh"
     if custom_prompt_template:
         template = custom_prompt_template
-    elif kind == "zh":
-        template = _PARSE_TX_TEXT_ZH
     elif kind == "en":
         template = _PARSE_TX_TEXT_EN
     else:
         template = _PARSE_TX_TEXT_PL
-    schema = _TX_DRAFTS_SCHEMA_ZH if is_zh else _TX_DRAFTS_SCHEMA_EN
+    schema = _TX_DRAFTS_SCHEMA_EN
     prompt = template.format(
         NOW=now.isoformat(timespec="seconds"),
         CATEGORIES=_format_categories_hint(categories),
         ACCOUNTS=_format_accounts_hint(accounts, ledger_currency),
-        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, is_zh=is_zh),
+        CURRENCY_HINT=_format_currency_hint(accounts, ledger_currency, is_zh=False),
         TEXT=text,
         SCHEMA=schema,
     )

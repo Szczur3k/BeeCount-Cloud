@@ -89,7 +89,7 @@ class BatchCreateTxRequest(BaseModel):
     # B2 only:从 ai parse-tx-image 拿到的 image_id,server 转 attachment 共享给所有 tx
     attach_image_id: str | None = None
     # locale 用来在创建 AI tag / 图片记账 tag 时按用户语言起名
-    locale: str = "zh"
+    locale: str = "pl"
 
 
 class BatchCreateTxResponse(BaseModel):
@@ -102,9 +102,7 @@ class BatchCreateTxResponse(BaseModel):
 
 
 _AI_TAG_BY_LOCALE = {
-    "zh": "AI记账",
-    "zh-CN": "AI记账",
-    "zh-TW": "AI記帳",
+    "pl": "AI",
     "en": "AI",
 }
 
@@ -430,12 +428,10 @@ def _resolve_or_make_ai_tag_name(db: Session, ledger: Ledger, locale: str) -> st
         if r.name and "AI" in r.name.upper():
             return r.name
     # 没命中 — 起名
-    locale_norm = (locale or "zh").lower().replace("_", "-")
-    if locale_norm.startswith("zh-tw") or locale_norm in {"zh-hant", "zh-hk", "zh-mo"}:
-        return _AI_TAG_BY_LOCALE["zh-TW"]
-    if locale_norm.startswith("zh"):
-        return _AI_TAG_BY_LOCALE["zh"]
-    return _AI_TAG_BY_LOCALE["en"]
+    locale_norm = (locale or "pl").lower().replace("_", "-")
+    if locale_norm.startswith("en"):
+        return _AI_TAG_BY_LOCALE["en"]
+    return _AI_TAG_BY_LOCALE["pl"]
 
 
 def _create_attachment_from_bytes(
