@@ -706,6 +706,12 @@ const en = {
   'home.hero.trendUnit.period': 'pt',
   'home.hero.balanceAccum': 'Cumulative',
   'home.hero.noTx': 'No transactions',
+  'home.average.income': 'Average income / {unit}',
+  'home.average.expense': 'Average expense / {unit}',
+  'home.average.day': 'day',
+  'home.average.month': 'month',
+  'home.average.incomeShort': 'Income / day',
+  'home.average.expenseShort': 'Expense / day',
 
   'home.monthMetric.income': 'Month income',
   'home.monthMetric.expense': 'Month expense',
@@ -718,8 +724,8 @@ const en = {
   'home.habit.savingRate.noIncome': 'No income this month',
   'home.habit.savingRate.good': 'Saving {rate}% of each 100',
   'home.habit.savingRate.bad': 'Expense exceeded income',
-  'home.habit.dailyExpense': 'Daily expense',
-  'home.habit.dailyExpense.footer': '{day} days in · total {total}',
+  'home.habit.dailyAverage': 'Daily averages',
+  'home.habit.dailyAverage.footer': '{day} days in · income {income} · expense {expense}',
   'home.habit.routine': 'Logging habit',
   'home.habit.routine.unit': 'tx / day',
   'home.habit.routine.footer': '{tx} tx · {days} days',
@@ -1362,6 +1368,10 @@ const en = {
   'confirm.deleteTag.desc': 'Delete tag "{name}"? This cannot be undone.',
   'confirm.deleteCategory.title': 'Delete category',
   'confirm.deleteCategory.desc': 'Delete category "{name}"? This cannot be undone.',
+  'confirm.deleteCategory.descWithChildren':
+    'Are you sure you want to delete category "{name}"? Its {count} subcategories will also be deleted. This cannot be undone.',
+  'confirm.deleteCategory.uncategorizeHint':
+    '{count} transactions will be left without a category.',
 
   'ops.backup.title': 'Backup Restore',
   'ops.backup.placeholder.snapshotId': 'Snapshot ID',

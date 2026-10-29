@@ -668,37 +668,53 @@ def update_category(snapshot: dict, category_id: str, payload: dict) -> dict:
 def delete_category(snapshot: dict, category_id: str, payload: dict | None = None) -> dict:
     target = ensure_snapshot_v2(snapshot)
     categories = _ensure_list(target, "categories")
-    idx, category = _find_by_sync_id(categories, category_id, expected_prefix="cat")
+    _idx, category = _find_by_sync_id(categories, category_id, expected_prefix="cat")
     _assert_actor_can_modify(category, payload or {})
     old_name = str(category.get("name") or "").strip()
     old_kind = str(category.get("kind") or "").strip()
-    # 严格策略(跟 AccountsPage / mobile 对齐):有子分类或关联交易时拒绝删除,
-    # 要求用户先迁移这些数据。比"允许删除并 orphan"安全 — 避免误删导致一堆
-    # 无主交易污染 ledger。前端也有同款拦截,这里是兜底服务端校验防止旧客户
-    # 端 / 直接 API 调用绕过。
-    if old_name and old_kind:
-        child_count = sum(
-            1
-            for row in categories
-            if str(row.get("syncId") or "") != category_id
-            and str(row.get("parentName") or "").strip() == old_name
-            and str(row.get("kind") or "").strip() == old_kind
+
+    ids_to_remove = {category_id}
+    names_to_clear = {old_name} if old_name else set()
+    changed = True
+    while changed:
+        changed = False
+        for row in categories:
+            sid = str(row.get("syncId") or "")
+            if not sid or sid in ids_to_remove:
+                continue
+            parent_name = str(row.get("parentName") or "").strip()
+            parent_sid = str(row.get("parentSyncId") or "").strip()
+            same_kind = str(row.get("kind") or "").strip() == old_kind
+            if parent_sid in ids_to_remove or (
+                same_kind and parent_name in names_to_clear
+            ):
+                ids_to_remove.add(sid)
+                child_name = str(row.get("name") or "").strip()
+                if child_name:
+                    names_to_clear.add(child_name)
+                changed = True
+
+    for tx in _ensure_list(target, "items"):
+        tx_cat_id = str(tx.get("categoryId") or "").strip()
+        tx_name = str(tx.get("categoryName") or "").strip()
+        tx_kind = str(tx.get("categoryKind") or "").strip()
+        hit = tx_cat_id in ids_to_remove or (
+            tx_name in names_to_clear and (not old_kind or tx_kind == old_kind)
         )
-        if child_count > 0:
-            raise ValueError(
-                f"write validation failed: category has {child_count} child categories"
-            )
-        tx_count = sum(
-            1
-            for tx in _ensure_list(target, "items")
-            if tx.get("categoryName") == old_name
-            and tx.get("categoryKind") == old_kind
-        )
-        if tx_count > 0:
-            raise ValueError(
-                f"write validation failed: category has {tx_count} transactions"
-            )
-    categories.pop(idx)
+        if not hit:
+            continue
+        tx["categoryId"] = None
+        tx["categoryName"] = None
+        tx["categoryKind"] = None
+
+    target["budgets"] = [
+        row
+        for row in _ensure_list(target, "budgets")
+        if str(row.get("categoryId") or "") not in ids_to_remove
+    ]
+    target["categories"] = [
+        row for row in categories if str(row.get("syncId") or "") not in ids_to_remove
+    ]
     return target
 
 

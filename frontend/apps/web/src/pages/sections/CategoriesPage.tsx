@@ -48,7 +48,12 @@ export function CategoriesPage() {
 
   const [rows, setRows] = usePageCache<WorkspaceCategory[]>('categories:rows', [])
   const [form, setForm] = useState<CategoryForm>(categoryDefaults())
-  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string
+    name: string
+    childCount: number
+    txCount: number
+  } | null>(null)
   // 编辑 dialog 受控开关 — CategoriesPanel 行编辑、CategoryDetailDialog 联动
   // 编辑都通过这个 state 触发;由 panel 内部 onCreate/onEdit 也会切到 true。
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -189,39 +194,22 @@ export function CategoriesPage() {
         onEdit={enterEdit}
         onRowClick={(row) => dispatchOpenDetailCategory(row, { defaultScope: 'all' })}
         onDelete={(row) => {
-          // 跟 mobile + AccountsPage 对齐:有关联交易 / 子分类 → 拒删,要求
-          // 用户先迁移这些数据。比"允许删除并 orphan 子分类/交易"更严格。
           const ws =
             (rows.find((r) => r.id === row.id) as WorkspaceCategory | undefined) ||
             (row as WorkspaceCategory)
           const txCount = ws.tx_count ?? 0
-          if (txCount > 0) {
-            toast.error(
-              t('categories.delete.blockedByTransactions', {
-                name: ws.name,
-                count: txCount,
-              }),
-              t('notice.error'),
-            )
-            return
-          }
           const childCount = rows.filter(
             (r) =>
               r.id !== ws.id &&
               r.parent_name === ws.name &&
               r.kind === ws.kind,
           ).length
-          if (childCount > 0) {
-            toast.error(
-              t('categories.delete.blockedByChildren', {
-                name: ws.name,
-                count: childCount,
-              }),
-              t('notice.error'),
-            )
-            return
-          }
-          setPendingDelete({ id: ws.id, name: ws.name })
+          setPendingDelete({
+            id: ws.id,
+            name: ws.name,
+            childCount,
+            txCount,
+          })
         }}
         onUploadIcon={async (file) => {
           if (!activeLedgerId) {
@@ -242,7 +230,24 @@ export function CategoriesPage() {
         title={t('confirm.deleteCategory.title')}
         description={
           pendingDelete
-            ? t('confirm.deleteCategory.desc').replace('{name}', pendingDelete.name)
+            ? [
+                pendingDelete.childCount > 0
+                  ? t('confirm.deleteCategory.descWithChildren', {
+                      name: pendingDelete.name,
+                      count: pendingDelete.childCount,
+                    })
+                  : t('confirm.deleteCategory.desc').replace(
+                      '{name}',
+                      pendingDelete.name,
+                    ),
+                pendingDelete.txCount > 0
+                  ? t('confirm.deleteCategory.uncategorizeHint', {
+                      count: pendingDelete.txCount,
+                    })
+                  : '',
+              ]
+                .filter(Boolean)
+                .join('\n\n')
             : ''
         }
         confirmText={t('confirm.delete')}

@@ -705,6 +705,12 @@ const zhTW = {
   'home.hero.trendUnit.period': '期',
   'home.hero.balanceAccum': '累計結餘',
   'home.hero.noTx': '暫無交易',
+  'home.average.income': '平均收入 / {unit}',
+  'home.average.expense': '平均支出 / {unit}',
+  'home.average.day': '天',
+  'home.average.month': '月',
+  'home.average.incomeShort': '日均收入',
+  'home.average.expenseShort': '日均支出',
 
   'home.monthMetric.income': '本月收入',
   'home.monthMetric.expense': '本月支出',
@@ -717,8 +723,8 @@ const zhTW = {
   'home.habit.savingRate.noIncome': '本月暫無收入',
   'home.habit.savingRate.good': '每 100 元收入存下約 {rate} 元',
   'home.habit.savingRate.bad': '本月支出超過收入',
-  'home.habit.dailyExpense': '本月日均支出',
-  'home.habit.dailyExpense.footer': '本月已過 {day} 天，合計支出 {total}',
+  'home.habit.dailyAverage': '本月日均金額',
+  'home.habit.dailyAverage.footer': '本月已過 {day} 天，收入 {income} · 支出 {expense}',
   'home.habit.routine': '記帳習慣',
   'home.habit.routine.unit': '筆 / 天',
   'home.habit.routine.footer': '累計 {tx} 筆 · 記帳 {days} 天',
@@ -1362,6 +1368,10 @@ const zhTW = {
   'confirm.deleteTag.desc': '確定要刪除標籤「{name}」嗎?此操作無法復原。',
   'confirm.deleteCategory.title': '刪除分類',
   'confirm.deleteCategory.desc': '確定要刪除分類「{name}」嗎?此操作無法復原。',
+  'confirm.deleteCategory.descWithChildren':
+    '確定刪除分類「{name}」及其 {count} 個子分類嗎？此操作無法復原。',
+  'confirm.deleteCategory.uncategorizeHint':
+    '{count} 筆交易將變為未分類。',
 
   'ops.backup.title': '備份還原',
   'ops.backup.placeholder.snapshotId': '快照 ID',

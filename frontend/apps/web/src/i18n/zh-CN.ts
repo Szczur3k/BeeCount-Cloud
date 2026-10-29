@@ -230,6 +230,12 @@ const zhCN = {
   'home.hero.trendUnit.period': '期',
   'home.hero.balanceAccum': '累计结余',
   'home.hero.noTx': '暂无交易',
+  'home.average.income': '平均收入 / {unit}',
+  'home.average.expense': '平均支出 / {unit}',
+  'home.average.day': '天',
+  'home.average.month': '月',
+  'home.average.incomeShort': '日均收入',
+  'home.average.expenseShort': '日均支出',
 
   // HomeMonthMetrics
   'home.monthMetric.income': '本月收入',
@@ -244,8 +250,8 @@ const zhCN = {
   'home.habit.savingRate.noIncome': '本月暂无收入',
   'home.habit.savingRate.good': '每 100 元收入存下约 {rate} 元',
   'home.habit.savingRate.bad': '本月支出超过收入',
-  'home.habit.dailyExpense': '本月日均支出',
-  'home.habit.dailyExpense.footer': '本月已过 {day} 天，合计支出 {total}',
+  'home.habit.dailyAverage': '本月日均金额',
+  'home.habit.dailyAverage.footer': '本月已过 {day} 天，收入 {income} · 支出 {expense}',
   'home.habit.routine': '记账习惯',
   'home.habit.routine.unit': '笔 / 天',
   'home.habit.routine.footer': '累计 {tx} 笔 · 记账 {days} 天',
@@ -1404,6 +1410,10 @@ const zhCN = {
   'confirm.deleteTag.desc': '确定要删除标签"{name}"吗?此操作不可撤销。',
   'confirm.deleteCategory.title': '删除分类',
   'confirm.deleteCategory.desc': '确定要删除分类"{name}"吗?此操作不可撤销。',
+  'confirm.deleteCategory.descWithChildren':
+    '确定删除分类「{name}」及其 {count} 个子分类吗？此操作不可撤销。',
+  'confirm.deleteCategory.uncategorizeHint':
+    '{count} 笔交易将变为未分类。',
 
   'ops.backup.title': '备份恢复',
   'ops.backup.placeholder.snapshotId': '快照 ID',

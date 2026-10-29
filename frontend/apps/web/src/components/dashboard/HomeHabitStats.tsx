@@ -33,6 +33,7 @@ export function HomeHabitStats({ monthSummary, ledgerCounts, currency = 'CNY' }:
   const now = new Date()
   const dayOfMonth = now.getDate()
   const avgDailyExpense = dayOfMonth > 0 ? monthExpense / dayOfMonth : 0
+  const avgDailyIncome = dayOfMonth > 0 ? monthIncome / dayOfMonth : 0
 
   // 累计每天笔数：全量 tx_count / 从首次记账到今天的天数。
   const totalTx = ledgerCounts?.tx_count ?? 0
@@ -115,22 +116,44 @@ export function HomeHabitStats({ monthSummary, ledgerCounts, currency = 'CNY' }:
             <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-expense/20 text-expense">
               <Flame className="h-4 w-4" />
             </span>
-            {t('home.habit.dailyExpense')}
+            {t('home.habit.dailyAverage')}
           </span>
         </div>
-        <Amount
-          value={avgDailyExpense}
-          currency={currency}
-          showCurrency
-          bold
-          size="3xl"
-          tone={avgDailyExpense > 0 ? 'negative' : 'default'}
-          className="relative mt-2 block leading-tight"
-        />
+        <div className="relative mt-2 grid grid-cols-2 gap-2">
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {t('home.average.incomeShort')}
+            </div>
+            <Amount
+              value={avgDailyIncome}
+              currency={currency}
+              showCurrency
+              bold
+              size="xl"
+              tone="positive"
+              className="mt-0.5 block leading-tight"
+            />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {t('home.average.expenseShort')}
+            </div>
+            <Amount
+              value={avgDailyExpense}
+              currency={currency}
+              showCurrency
+              bold
+              size="xl"
+              tone={avgDailyExpense > 0 ? 'negative' : 'default'}
+              className="mt-0.5 block leading-tight"
+            />
+          </div>
+        </div>
         <div className="relative mt-1.5 text-[11px] text-muted-foreground">
-          {t('home.habit.dailyExpense.footer')
+          {t('home.habit.dailyAverage.footer')
             .replace('{day}', String(dayOfMonth))
-            .replace('{total}', monthExpense.toLocaleString(undefined, { maximumFractionDigits: 2 }))}
+            .replace('{income}', monthIncome.toLocaleString(undefined, { maximumFractionDigits: 2 }))
+            .replace('{expense}', monthExpense.toLocaleString(undefined, { maximumFractionDigits: 2 }))}
         </div>
       </div>
 

@@ -1,8 +1,7 @@
-"""Server-side guards on `delete_category`:
-  - 拒绝删除有子分类的父分类(parent_name 引用)
-  - 拒绝删除被任何 tx 引用的分类(categoryName + categoryKind)
-
-跟 mobile/AccountsPage 的 delete-blocked 策略对齐 — 防止 orphan 数据污染。
+"""Server-side `delete_category`:
+  - parent with children: cascade-delete children
+  - txs on those categories: uncategorized (not rejected)
+  - unused leaf still succeeds
 """
 
 from __future__ import annotations
@@ -181,8 +180,8 @@ def _delete_category(
     return res.status_code, res.text
 
 
-def test_delete_category_with_child_categories_is_rejected() -> None:
-    """父分类下还有子分类 → 拒删,要求用户先删子分类"""
+def test_delete_category_with_child_categories_cascades() -> None:
+    """Deleting a parent removes its children from the library."""
     client = _make_client()
     try:
         owner = _register(client, "cat-del-child@example.com")
@@ -193,7 +192,6 @@ def test_delete_category_with_child_categories_is_rejected() -> None:
         web = _login_web(client, "cat-del-child@example.com")
         token = web["access_token"]
 
-        # 父分类 + 一个子分类(parent_name 引用父)
         parent_id = _create_category(
             client, token, ledger_id, name="餐饮", kind="expense", level=1
         )
@@ -207,18 +205,23 @@ def test_delete_category_with_child_categories_is_rejected() -> None:
             parent_name="餐饮",
         )
 
-        # 删父分类应该 400/422,带"child categories" 错误
         status, text = _delete_category(client, token, ledger_id, parent_id)
-        assert status >= 400, f"expected reject, got {status}: {text}"
-        assert "child" in text.lower() or "subcateg" in text.lower() or "校验" in text, (
-            f"expected child-category error, got: {text}"
+        assert status == 200, f"expected cascade delete, got {status}: {text}"
+
+        listing = client.get(
+            f"/api/v1/read/ledgers/{ledger_id}/categories",
+            headers={"Authorization": f"Bearer {token}"},
         )
+        cats = listing.json()
+        names = {c["name"] for c in cats}
+        assert "餐饮" not in names
+        assert "早餐" not in names
     finally:
         app.dependency_overrides.clear()
 
 
-def test_delete_category_with_referencing_transactions_is_rejected() -> None:
-    """分类被 tx 引用(categoryName + categoryKind)→ 拒删"""
+def test_delete_category_with_referencing_transactions_uncategorizes() -> None:
+    """Txs on a deleted category stay, without a category."""
     client = _make_client()
     try:
         owner = _register(client, "cat-del-tx@example.com")
@@ -232,7 +235,6 @@ def test_delete_category_with_referencing_transactions_is_rejected() -> None:
         cat_id = _create_category(
             client, token, ledger_id, name="交通", kind="expense", level=1
         )
-        # 创建一笔引用该分类的交易
         now_iso = datetime.now(timezone.utc).isoformat()
         _create_tx(
             client,
@@ -245,10 +247,14 @@ def test_delete_category_with_referencing_transactions_is_rejected() -> None:
         )
 
         status, text = _delete_category(client, token, ledger_id, cat_id)
-        assert status >= 400, f"expected reject, got {status}: {text}"
-        assert "transaction" in text.lower() or "校验" in text or "tx" in text.lower(), (
-            f"expected tx-reference error, got: {text}"
+        assert status == 200, f"expected delete with uncategorize, got {status}: {text}"
+
+        listing = client.get(
+            f"/api/v1/read/ledgers/{ledger_id}/categories",
+            headers={"Authorization": f"Bearer {token}"},
         )
+        cats = listing.json()
+        assert not any(c["name"] == "交通" for c in cats)
     finally:
         app.dependency_overrides.clear()
 

@@ -94,6 +94,14 @@ export function HomeHero({
   const income = activeSummary?.income_total ?? 0
   const expense = activeSummary?.expense_total ?? 0
   const balance = activeSummary?.balance ?? income - expense
+  const currentDate = new Date()
+  const averagePeriods =
+    scope === 'month'
+      ? currentDate.getDate()
+      : scope === 'year'
+        ? currentDate.getMonth() + 1
+        : Math.max(1, activeSeries.filter((item) => item.income > 0 || item.expense > 0).length)
+  const averageUnit = scope === 'month' ? t('home.average.day') : t('home.average.month')
 
   const txCount = ledgerCounts?.tx_count ?? 0
   const days = ledgerCounts?.days_since_first_tx ?? 0
@@ -177,7 +185,7 @@ export function HomeHero({
             className="mt-1 block font-black tracking-tight"
           />
 
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             <HeroStat
               icon={<ArrowDownLeft className="h-3.5 w-3.5 text-income" />}
               label={t('home.hero.income').replace('{scope}', scopeLabel)}
@@ -215,10 +223,42 @@ export function HomeHero({
               />
             </HeroStat>
             <HeroStat
+              icon={<ArrowDownLeft className="h-3.5 w-3.5 text-income" />}
+              label={t('home.average.income').replace('{unit}', averageUnit)}
+              className="bee-rise-in"
+              style={{ animationDelay: '160ms' }}
+            >
+              <Amount
+                value={income / averagePeriods}
+                currency={currency}
+                showCurrency
+                bold
+                size="xl"
+                tone="positive"
+                className="mt-0.5 block leading-tight"
+              />
+            </HeroStat>
+            <HeroStat
+              icon={<ArrowUpRight className="h-3.5 w-3.5 text-expense" />}
+              label={t('home.average.expense').replace('{unit}', averageUnit)}
+              className="bee-rise-in"
+              style={{ animationDelay: '200ms' }}
+            >
+              <Amount
+                value={expense / averagePeriods}
+                currency={currency}
+                showCurrency
+                bold
+                size="xl"
+                tone="negative"
+                className="mt-0.5 block leading-tight"
+              />
+            </HeroStat>
+            <HeroStat
               icon={<Receipt className="h-3.5 w-3.5 text-amber-500" />}
               label={t('home.hero.count')}
               className="bee-rise-in"
-              style={{ animationDelay: '220ms' }}
+              style={{ animationDelay: '240ms' }}
             >
               <div className="mt-0.5 font-mono text-xl font-bold tabular-nums leading-tight">
                 {txCount.toLocaleString()}
@@ -231,7 +271,7 @@ export function HomeHero({
               icon={<CalendarDays className="h-3.5 w-3.5 text-sky-500" />}
               label={t('home.hero.days')}
               className="bee-rise-in"
-              style={{ animationDelay: '330ms' }}
+              style={{ animationDelay: '280ms' }}
             >
               <div className="mt-0.5 font-mono text-xl font-bold tabular-nums leading-tight">
                 {days.toLocaleString()}

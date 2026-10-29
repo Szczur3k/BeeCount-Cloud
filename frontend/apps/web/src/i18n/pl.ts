@@ -706,6 +706,12 @@ const pl = {
   'home.hero.trendUnit.period': 'ok.',
   'home.hero.balanceAccum': 'Narastająco',
   'home.hero.noTx': 'Brak transakcji',
+  'home.average.income': 'Średni przychód / {unit}',
+  'home.average.expense': 'Średni wydatek / {unit}',
+  'home.average.day': 'dzień',
+  'home.average.month': 'miesiąc',
+  'home.average.incomeShort': 'Przychód / dzień',
+  'home.average.expenseShort': 'Wydatek / dzień',
 
   'home.monthMetric.income': 'Przychody miesiąca',
   'home.monthMetric.expense': 'Wydatki miesiąca',
@@ -718,8 +724,8 @@ const pl = {
   'home.habit.savingRate.noIncome': 'W tym miesiącu brak przychodów',
   'home.habit.savingRate.good': 'Oszczędzasz {rate}% ze 100',
   'home.habit.savingRate.bad': 'Wydatki przewyższyły przychody',
-  'home.habit.dailyExpense': 'Wydatek dzienny',
-  'home.habit.dailyExpense.footer': '{day} dni · razem {total}',
+  'home.habit.dailyAverage': 'Średnie kwoty dzienne',
+  'home.habit.dailyAverage.footer': '{day} dni · przychód {income} · wydatek {expense}',
   'home.habit.routine': 'Regularność wpisów',
   'home.habit.routine.unit': 'wp. / dzień',
   'home.habit.routine.footer': '{tx} wp. · {days} dni',
@@ -1362,6 +1368,10 @@ const pl = {
   'confirm.deleteTag.desc': 'Usunąć tag „{name}”? Tej operacji nie można cofnąć.',
   'confirm.deleteCategory.title': 'Usuń kategorię',
   'confirm.deleteCategory.desc': 'Usunąć kategorię „{name}”? Tej operacji nie można cofnąć.',
+  'confirm.deleteCategory.descWithChildren':
+    'Czy na pewno usunąć kategorię „{name}”? Zostaną też usunięte jej {count} podkategorie. Tej operacji nie można cofnąć.',
+  'confirm.deleteCategory.uncategorizeHint':
+    '{count} transakcji zostanie bez kategorii.',
 
   'ops.backup.title': 'Przywracanie kopii',
   'ops.backup.placeholder.snapshotId': 'ID migawki',
